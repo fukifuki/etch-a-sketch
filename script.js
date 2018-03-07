@@ -6,12 +6,18 @@ function Grid (size) {
   this.size = size;
 
   this.colors = ['red', 'blue', 'green', 'brown', 'yellow'];
+
+  this.defaultColor = 'grey';
+
+  this.nextColor = '';
 }
 
-Grid.prototype.nextColor = function () {
+
+Grid.prototype.setNextColor = function () {
   let randomColorIndex = Math.floor(Math.random() * this.colors.length);
-  return this.colors[randomColorIndex];
+  this.nextColor = this.colors[randomColorIndex];
 }
+
 
 const gridController = {
 
@@ -19,17 +25,30 @@ const gridController = {
 
   // this should be called from intro view (not same as grid view)
   init: function () {
-    this.grid = new Grid(8);
+    // grid size shouldn't be hardcoded
+    this.grid = new Grid(64);
 
     gridView.init();
   },
+
 
   getGrid: function () {
     return this.grid;
   },
 
+  getDefaultColor: function () {
+    return this.grid.defaultColor;
+  },
+
   getNextColor: function () {
-    return this.grid.nextColor();
+    this.grid.setNextColor();
+    return this.grid.nextColor;
+  },
+
+  clearGrid: function () {
+    this.grid.nextColor = this.grid.defaultColor;
+
+    gridView.render();
   }
 }
 
@@ -40,11 +59,19 @@ const gridView = {
   init: function () {
 
     this.gridEl = document.getElementById('grid');
+    this.clearButtonEl = document.getElementById('clear-button');
 
     this.gridEl.addEventListener('mouseover', (e) => {
+      console.log(gridController.getNextColor());
       e.target.style.backgroundColor = gridController.getNextColor();
     });
 
+    this.clearButtonEl.addEventListener('click', () => {
+      while (this.gridEl.firstChild) { 
+        this.gridEl.removeChild(this.gridEl.firstChild);
+      };
+      gridController.clearGrid();
+    });
 
     this.render();
   },
@@ -70,6 +97,7 @@ const gridView = {
     squareEl.classList.add('square');
     squareEl.style.width = width + 'px';
     squareEl.style.height = height + 'px';
+    squareEl.style.backgroundColor = gridController.getDefaultColor();
     
     this.gridEl.appendChild(squareEl);
    

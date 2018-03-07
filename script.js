@@ -4,8 +4,14 @@
 
 function Grid (size) {
   this.size = size;
+
+  this.colors = ['red', 'blue', 'green', 'brown', 'yellow'];
 }
 
+Grid.prototype.nextColor = function () {
+  let randomColorIndex = Math.floor(Math.random() * this.colors.length);
+  return this.colors[randomColorIndex];
+}
 
 const gridController = {
 
@@ -20,6 +26,10 @@ const gridController = {
 
   getGrid: function () {
     return this.grid;
+  },
+
+  getNextColor: function () {
+    return this.grid.nextColor();
   }
 }
 
@@ -28,13 +38,19 @@ const gridController = {
 const gridView = {
 
   init: function () {
+
     this.gridEl = document.getElementById('grid');
-    console.log(this.gridEl);
+
+    this.gridEl.addEventListener('mouseover', (e) => {
+      e.target.style.backgroundColor = gridController.getNextColor();
+    });
+
 
     this.render();
   },
 
   render: function () {
+
     let grid = gridController.getGrid();
 
     let squareElWidth = this.gridEl.offsetWidth / grid.size;
@@ -56,7 +72,7 @@ const gridView = {
     squareEl.style.height = height + 'px';
     
     this.gridEl.appendChild(squareEl);
-    
+   
   }
 
 }

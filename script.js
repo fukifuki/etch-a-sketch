@@ -19,6 +19,7 @@ Grid.prototype.setNextColor = function () {
 }
 
 
+
 const gridController = {
 
   grid: null,

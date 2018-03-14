@@ -2,20 +2,71 @@
 'use strict';
 
 
-function Grid (size) {
+// GRID
+function Grid (size, defaultColor) {
+  
   this.size = size;
-
-  this.colors = ['red', 'blue', 'green', 'brown', 'yellow'];
-
-  this.defaultColor = 'grey';
-
+  
+  this.defaultColor = defaultColor;
+  
   this.nextColor = '';
+
 }
 
 
-Grid.prototype.setNextColor = function () {
-  let randomColorIndex = Math.floor(Math.random() * this.colors.length);
-  this.nextColor = this.colors[randomColorIndex];
+// POLYCOLOR GRID --- grid with a predetermined set of colors
+function PolycolorGrid (size, defaultColor) {
+
+  Grid.call(this, size, defaultColor);
+
+  this.colors = ['#6290C3', '#C2E7DA', '#F1FFE7', '#1A1B41', '#BAFF29'];
+
+  this.nextColorIndex = 0;
+
+}
+
+PolycolorGrid.prototype = Object.create(Grid.prototype);
+
+PolycolorGrid.prototype.setNextColor = function () {
+  this.nextColorIndex = (this.nextColorIndex + 1) % this.colors.length;
+  this.nextColor = this.colors[this.nextColorIndex];
+}
+
+
+// RANDOM COLOR GRID
+function RandomColorGrid (size, defaultColor) {
+
+  Grid.call(this, size, defaultColor);
+
+  this.hexNums = '0123456789ABCDEF';
+}
+
+RandomColorGrid.prototype = Object.create(Grid.prototype);
+
+RandomColorGrid.prototype.setNextColor = function () {
+  let nextColor = '#';
+  for (var i = 0; i < 6; i++) {
+    nextColor += this.hexNums[Math.floor(Math.random() * 16)];
+  }
+  this.nextColor = nextColor;
+}
+
+
+
+function GridFactory () {
+  this.createGrid = function (type, size, defaultColor) {
+    let grid;
+
+    if (type === 'polycolor') {
+      grid = new PolycolorGrid(size, defaultColor);
+    } else if (type === 'random color') {
+      grid = new RandomColorGrid(size, defaultColor);
+    } else if (type === 'gradient') {
+      grid = new GradientGrid(size, defaultColor);
+    }
+
+    return grid;
+  } 
 }
 
 
@@ -24,14 +75,19 @@ const gridController = {
 
   grid: null,
 
+  gridFactory: new GridFactory(),
   // this should be called from intro view (not same as grid view)
   init: function () {
-    // grid size shouldn't be hardcoded
-    this.grid = new Grid(64);
+
+    this.setGrid();
 
     gridView.init();
   },
 
+  setGrid: function () {
+    this.grid = this.gridFactory
+      .createGrid(gridSettings.gridType, gridSettings.gridSize, 'gray');
+  },
 
   getGrid: function () {
     return this.grid;
@@ -63,14 +119,10 @@ const gridView = {
     this.clearButtonEl = document.getElementById('clear-button');
 
     this.gridEl.addEventListener('mouseover', (e) => {
-      console.log(gridController.getNextColor());
       e.target.style.backgroundColor = gridController.getNextColor();
     });
 
     this.clearButtonEl.addEventListener('click', () => {
-      while (this.gridEl.firstChild) { 
-        this.gridEl.removeChild(this.gridEl.firstChild);
-      };
       gridController.clearGrid();
     });
 
@@ -78,6 +130,8 @@ const gridView = {
   },
 
   render: function () {
+
+    this.eraseGrid();
 
     let grid = gridController.getGrid();
 
@@ -102,10 +156,83 @@ const gridView = {
     
     this.gridEl.appendChild(squareEl);
    
+  },
+
+  eraseGrid: function () {
+    // while (this.gridEl.firstChild) { 
+    //   this.gridEl.removeChild(this.gridEl.firstChild);
+    // };
+    this.gridEl.innerHTML = '';
+    // }
+  }
+}
+
+
+// settings
+const gridSettings = {
+
+  gridTypes: ['polycolor', 'random color', 'gradient'],
+
+  gridType: '',
+
+  gridSize: 0
+
+}
+
+
+const gridSettingsController = {
+
+  init: function () {
+
+    gridSettings.gridType = gridSettings.gridTypes[0];
+    gridSettings.gridSize = gridSettings.gridSize = 64;
+    
+    gridSettingsView.init();
+  },
+
+  update: function (gridSize, gridType) {
+    gridSettings.gridSize = gridSize;
+    gridSettings.gridType = gridType;
+    
+    gridController.init();
+  },
+
+  getGridTypes: function () {
+    return gridSettings.gridTypes;
   }
 
 }
 
+
+const gridSettingsView = {
+
+  init: function () {
+    this.gridSizeEl = document.querySelector('#grid-size');
+    this.gridTypesEl = document.querySelector('#grid-type');
+    this.saveSettingsButtonEl = document.querySelector('#save-settings-button');
+    
+    this.saveSettingsButtonEl.addEventListener('click', () => {
+      let gridType = this.gridTypesEl
+                      .options[this.gridTypesEl.selectedIndex].text
+      gridSettingsController
+        .update(this.gridSizeEl.value, gridType);
+    });
+
+    this.render();
+  },
+
+  render: function () {
+    let gridTypes = gridSettingsController.getGridTypes();
+    gridTypes.forEach((type) => {
+      let optionEl = document.createElement('OPTION');
+      optionEl.textContent = type;
+      this.gridTypesEl.append(optionEl);
+    });
+  }
+
+}
+
+gridSettingsController.init();
 gridController.init();
 
 })();

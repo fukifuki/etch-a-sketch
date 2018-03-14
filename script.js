@@ -2,22 +2,22 @@
 'use strict';
 
 
+// Models
 // GRID
-function Grid (size, defaultColor) {
+function Grid (size) {
   
   this.size = size;
   
-  this.defaultColor = defaultColor;
+  this.defaultColor = '#dbdbdb';
   
   this.nextColor = '';
 
 }
 
-
 // POLYCOLOR GRID --- grid with a predetermined set of colors
-function PolycolorGrid (size, defaultColor) {
+function PolycolorGrid (size) {
 
-  Grid.call(this, size, defaultColor);
+  Grid.call(this, size);
 
   this.colors = ['#6290C3', '#C2E7DA', '#F1FFE7', '#1A1B41', '#BAFF29'];
 
@@ -32,11 +32,10 @@ PolycolorGrid.prototype.setNextColor = function () {
   this.nextColor = this.colors[this.nextColorIndex];
 }
 
-
 // RANDOM COLOR GRID
-function RandomColorGrid (size, defaultColor) {
+function RandomColorGrid (size) {
 
-  Grid.call(this, size, defaultColor);
+  Grid.call(this, size);
 
   this.hexNums = '0123456789ABCDEF';
 }
@@ -51,26 +50,37 @@ RandomColorGrid.prototype.setNextColor = function () {
   this.nextColor = nextColor;
 }
 
-
-
+// grid factory
 function GridFactory () {
-  this.createGrid = function (type, size, defaultColor) {
+  this.createGrid = function (type, size) {
     let grid;
 
     if (type === 'polycolor') {
-      grid = new PolycolorGrid(size, defaultColor);
+      grid = new PolycolorGrid(size);
     } else if (type === 'random color') {
-      grid = new RandomColorGrid(size, defaultColor);
+      grid = new RandomColorGrid(size);
     } else if (type === 'gradient') {
-      grid = new GradientGrid(size, defaultColor);
+      grid = new GradientGrid(size);
     }
 
     return grid;
   } 
 }
 
+// SETTINGS
+const gridSettings = {
+
+  gridTypes: ['polycolor', 'random color', 'gradient'],
+
+  gridType: '',
+
+  gridSize: 0
+
+}
 
 
+// Controllers
+// GRID CONTROLLER
 const gridController = {
 
   grid: null,
@@ -86,7 +96,7 @@ const gridController = {
 
   setGrid: function () {
     this.grid = this.gridFactory
-      .createGrid(gridSettings.gridType, gridSettings.gridSize, 'gray');
+      .createGrid(gridSettings.gridType, gridSettings.gridSize);
   },
 
   getGrid: function () {
@@ -110,7 +120,32 @@ const gridController = {
 }
 
 
+// GRID SETTINGS CONTROLLER
+const gridSettingsController = {
 
+  init: function () {
+
+    gridSettings.gridType = gridSettings.gridTypes[0];
+    gridSettings.gridSize = gridSettings.gridSize = 64;
+    
+    gridSettingsView.init();
+  },
+
+  update: function (gridSize, gridType) {
+    gridSettings.gridSize = gridSize;
+    gridSettings.gridType = gridType;
+    
+    gridController.init();
+  },
+
+  getGridTypes: function () {
+    return gridSettings.gridTypes;
+  }
+
+}
+
+// Grid views
+// GRID VIEW
 const gridView = {
 
   init: function () {
@@ -167,43 +202,7 @@ const gridView = {
   }
 }
 
-
-// settings
-const gridSettings = {
-
-  gridTypes: ['polycolor', 'random color', 'gradient'],
-
-  gridType: '',
-
-  gridSize: 0
-
-}
-
-
-const gridSettingsController = {
-
-  init: function () {
-
-    gridSettings.gridType = gridSettings.gridTypes[0];
-    gridSettings.gridSize = gridSettings.gridSize = 64;
-    
-    gridSettingsView.init();
-  },
-
-  update: function (gridSize, gridType) {
-    gridSettings.gridSize = gridSize;
-    gridSettings.gridType = gridType;
-    
-    gridController.init();
-  },
-
-  getGridTypes: function () {
-    return gridSettings.gridTypes;
-  }
-
-}
-
-
+// GRID SETTINGS VIEW
 const gridSettingsView = {
 
   init: function () {
@@ -232,6 +231,8 @@ const gridSettingsView = {
 
 }
 
+
+// Init
 gridSettingsController.init();
 gridController.init();
 

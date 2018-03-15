@@ -10,7 +10,9 @@ function Grid (size) {
   
   this.defaultColor = '#dbdbdb';
   
-  this.nextColor = '';
+  this.currentColor = '';
+
+  this.isChangingOpacity = false;
 
 }
 
@@ -21,15 +23,15 @@ function PolycolorGrid (size) {
 
   this.colors = ['#6290C3', '#C2E7DA', '#F1FFE7', '#1A1B41', '#BAFF29'];
 
-  this.nextColorIndex = 0;
+  this.currentColorIndex = 0;
 
 }
 
 PolycolorGrid.prototype = Object.create(Grid.prototype);
 
-PolycolorGrid.prototype.setNextColor = function () {
-  this.nextColorIndex = (this.nextColorIndex + 1) % this.colors.length;
-  this.nextColor = this.colors[this.nextColorIndex];
+PolycolorGrid.prototype.update = function () {
+  this.currentColorIndex = (this.currentColorIndex + 1) % this.colors.length;
+  this.currentColor = this.colors[this.currentColorIndex];
 }
 
 // RANDOM COLOR GRID
@@ -42,13 +44,32 @@ function RandomColorGrid (size) {
 
 RandomColorGrid.prototype = Object.create(Grid.prototype);
 
-RandomColorGrid.prototype.setNextColor = function () {
+RandomColorGrid.prototype.update = function () {
   let nextColor = '#';
   for (var i = 0; i < 6; i++) {
     nextColor += this.hexNums[Math.floor(Math.random() * 16)];
   }
-  this.nextColor = nextColor;
+  this.currentColor = nextColor;
 }
+
+// GRADIENT GRID
+function GradientGrid (size) {
+
+  Grid.call(this, size);
+
+  this.defaultColor = '#3685B5';
+
+  this.currentColor = this.defaultColor;
+
+  this.isChangingOpacity = true;
+}
+
+GradientGrid.prototype = Object.create(Grid.prototype);
+
+// GradientGrid.prototype.setNextColor = function () {
+//   if (this.opacity + 0.1 < 1) { this.opacity += 0.1 };
+//   this.nextColor = this.defaultColor; 
+// }
 
 // grid factory
 function GridFactory () {
@@ -103,17 +124,23 @@ const gridController = {
     return this.grid;
   },
 
+  isChangingOpacity: function () {
+    return this.grid.isChangingOpacity;
+  },
+
   getDefaultColor: function () {
     return this.grid.defaultColor;
   },
 
-  getNextColor: function () {
-    this.grid.setNextColor();
-    return this.grid.nextColor;
+  getCurrentColor: function () {
+    if (this.grid.update !== undefined) {
+      this.grid.update();
+    }
+    return this.grid.currentColor;
   },
 
   clearGrid: function () {
-    this.grid.nextColor = this.grid.defaultColor;
+    this.grid.currentColor = this.grid.defaultColor;
 
     gridView.render();
   }
@@ -153,9 +180,18 @@ const gridView = {
     this.gridEl = document.getElementById('grid');
     this.clearButtonEl = document.getElementById('clear-button');
 
-    this.gridEl.addEventListener('mouseover', (e) => {
-      e.target.style.backgroundColor = gridController.getNextColor();
-    });
+    if (gridController.isChangingOpacity()) {
+      this.gridEl.addEventListener('mouseover', (e) => {
+        if (e.target.style.opacity < 1) { 
+          e.target.style.opacity = parseFloat(e.target.style.opacity) + 0.1; 
+        } 
+      });
+    } else {
+      this.gridEl.addEventListener('mouseover', (e) => {
+        e.target.style.backgroundColor = gridController.getCurrentColor();
+      });
+    }
+      
 
     this.clearButtonEl.addEventListener('click', () => {
       gridController.clearGrid();
@@ -188,6 +224,7 @@ const gridView = {
     squareEl.style.width = width + 'px';
     squareEl.style.height = height + 'px';
     squareEl.style.backgroundColor = gridController.getDefaultColor();
+    if (gridController.isChangingOpacity()) { squareEl.style.opacity = 0.1; }
     
     this.gridEl.appendChild(squareEl);
    

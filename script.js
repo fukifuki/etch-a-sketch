@@ -146,6 +146,17 @@ const gridController = {
     this.grid.currentColor = this.grid.defaultColor;
 
     gridView.render();
+  },
+
+  updateGridSize: function () {
+    this.grid.size = gridSettings.gridSize;
+    console.log(this.grid.size);
+
+    gridView.render();
+  },
+
+  updateGridType: function () {
+    this.grid.type = gridSettings.grid
   }
 }
 
@@ -161,10 +172,22 @@ const gridSettingsController = {
     gridSettingsView.init();
   },
 
-  update: function (gridSize, gridType) {
-    gridSettings.gridSize = gridSize;
-    gridSettings.gridType = gridType;
+  // update: function (gridSize, gridType) {
+  //   gridSettings.gridSize = gridSize;
+  //   gridSettings.gridType = gridType;
     
+  //   gridController.init();
+  // },
+
+  changeGridSize: function (newSize) {
+    gridSettings.gridSize = newSize;
+
+    gridController.updateGridSize();
+  },
+
+  changeGridType: function (newType) {
+    gridSettings.gridType = newType;
+
     gridController.init();
   },
 
@@ -254,11 +277,23 @@ const gridSettingsView = {
     this.gridTypesEl = document.querySelector('#grid-type');
     this.saveSettingsButtonEl = document.querySelector('#save-settings-button');
     
-    this.saveSettingsButtonEl.addEventListener('click', () => {
+    // this.saveSettingsButtonEl.addEventListener('click', () => {
+    //   let gridType = this.gridTypesEl
+    //                   .options[this.gridTypesEl.selectedIndex].text
+    //   gridSettingsController
+    //     .update(this.gridSizesEl.value, gridType);
+    // });
+
+    this.gridTypesEl.addEventListener('change', () => {
       let gridType = this.gridTypesEl
                       .options[this.gridTypesEl.selectedIndex].text
-      gridSettingsController
-        .update(this.gridSizesEl.value, gridType);
+      gridSettingsController.changeGridType(gridType);
+    })
+
+    this.gridSizesEl.addEventListener('change', () => {
+      let gridSize = this.gridSizesEl
+                      .options[this.gridSizesEl.selectedIndex].text;
+      gridSettingsController.changeGridSize(gridSize);
     });
 
     this.render();

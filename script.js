@@ -73,10 +73,6 @@ function GradientGrid (size) {
 
 GradientGrid.prototype = Object.create(Grid.prototype);
 
-// GradientGrid.prototype.setNextColor = function () {
-//   if (this.opacity + 0.1 < 1) { this.opacity += 0.1 };
-//   this.nextColor = this.defaultColor; 
-// }
 
 // grid factory
 function GridFactory () {
@@ -180,13 +176,6 @@ const gridSettingsController = {
     gridSettingsView.init();
   },
 
-  // update: function (gridSize, gridType) {
-  //   gridSettings.gridSize = gridSize;
-  //   gridSettings.gridType = gridType;
-    
-  //   gridController.init();
-  // },
-
   changeGridSize: function (newSize) {
     gridSettings.gridSize = newSize;
 
@@ -269,11 +258,7 @@ const gridView = {
   },
 
   eraseGrid: function () {
-    // while (this.gridEl.firstChild) { 
-    //   this.gridEl.removeChild(this.gridEl.firstChild);
-    // };
     this.gridEl.innerHTML = '';
-    // }
   }
 }
 
@@ -284,13 +269,6 @@ const gridSettingsView = {
     this.gridSizesEl = document.querySelector('#grid-size');
     this.gridTypesEl = document.querySelector('#grid-type');
     this.saveSettingsButtonEl = document.querySelector('#save-settings-button');
-    
-    // this.saveSettingsButtonEl.addEventListener('click', () => {
-    //   let gridType = this.gridTypesEl
-    //                   .options[this.gridTypesEl.selectedIndex].text
-    //   gridSettingsController
-    //     .update(this.gridSizesEl.value, gridType);
-    // });
 
     this.gridTypesEl.addEventListener('change', () => {
       let gridType = this.gridTypesEl

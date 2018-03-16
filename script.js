@@ -16,11 +16,19 @@ function Grid (size) {
 
 }
 
-function MonoColorGrid (size) {
+function MonocolorGrid (size) {
 
   Grid.call(this, size);
 
-  this.currentColor = '#b20000';
+  this.color = '#b20000'
+
+  this.currentColor = this.color;
+}
+
+MonocolorGrid.prototype = Object.create(Grid.prototype);
+
+MonocolorGrid.prototype.update = function () {
+  if (this.currentColor !== this.color) { this.currentColor = this.color }
 }
 
 // POLYCOLOR GRID --- grid with a predetermined set of colors
@@ -86,7 +94,7 @@ function GridFactory () {
     } else if (type === 'gradient') {
       grid = new GradientGrid(size);
     } else if (type === 'monocolor') {
-      grid = new MonoColorGrid(size);
+      grid = new MonocolorGrid(size);
     }
 
     return grid;
@@ -154,8 +162,7 @@ const gridController = {
 
   updateGridSize: function () {
     this.grid.size = gridSettings.gridSize;
-    console.log(this.grid.size);
-
+    
     gridView.render();
   },
 

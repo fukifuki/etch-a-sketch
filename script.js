@@ -16,6 +16,13 @@ function Grid (size) {
 
 }
 
+function MonoColorGrid (size) {
+
+  Grid.call(this, size);
+
+  this.currentColor = '#b20000';
+}
+
 // POLYCOLOR GRID --- grid with a predetermined set of colors
 function PolycolorGrid (size) {
 
@@ -50,7 +57,6 @@ RandomColorGrid.prototype.update = function () {
     nextColor += this.hexNums[Math.floor(Math.random() * 16)];
   }
   this.currentColor = nextColor;
-  console.log(this.currentColor);
 }
 
 // GRADIENT GRID
@@ -83,6 +89,8 @@ function GridFactory () {
       grid = new RandomColorGrid(size);
     } else if (type === 'gradient') {
       grid = new GradientGrid(size);
+    } else if (type === 'monocolor') {
+      grid = new MonoColorGrid(size);
     }
 
     return grid;
@@ -92,7 +100,7 @@ function GridFactory () {
 // SETTINGS
 const gridSettings = {
 
-  gridTypes: ['polycolor', 'random color', 'gradient'],
+  gridTypes: ['monocolor', 'polycolor', 'random color', 'gradient'],
 
   gridSizes: [8, 16, 32, 64],
 
